@@ -299,6 +299,8 @@ struct settings {
     bool sasl;              /* SASL on/off */
     bool maxconns_fast;     /* Whether or not to early close connections */
     int hashpower_init;     /* Starting hash power level */
+
+    bool prolongate;
 };
 
 extern struct stats stats;

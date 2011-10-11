@@ -218,6 +218,8 @@ static void settings_init(void) {
     settings.item_size_max = 1024 * 1024; /* The famous 1MB upper limit. */
     settings.maxconns_fast = false;
     settings.hashpower_init = 0;
+
+    settings.prolongate = false;
 }
 
 /*
@@ -2775,6 +2777,10 @@ static inline void process_get_command(conn *c, token_t *tokens, size_t ntokens,
                 if (settings.verbose > 1)
                     fprintf(stderr, ">%d sending key %s\n", c->sfd, ITEM_key(it));
 
+                if (settings.prolongate) {
+                    it->exptime += ( current_time - it->time );
+                }
+
                 /* item_get() has incremented it->refcount for us */
                 pthread_mutex_lock(&c->thread->stats.mutex);
                 c->thread->stats.slab_stats[it->slabs_clsid].get_hits++;
@@ -4679,6 +4685,7 @@ int main (int argc, char **argv) {
           "I:"  /* Max item size */
           "S"   /* Sasl ON */
           "o:"  /* Extended generic options */
+          "X"   /* Enable prolongation */
         ))) {
         switch (c) {
         case 'a':
@@ -4885,6 +4892,9 @@ int main (int argc, char **argv) {
             }
 
             }
+            break;
+        case 'X':
+            settings.prolongate = true;
             break;
         default:
             fprintf(stderr, "Illegal argument \"%c\"\n", c);
